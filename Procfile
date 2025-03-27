@@ -1,1 +1,1 @@
-web: python ninjapp/app.py
+web: python app.py
