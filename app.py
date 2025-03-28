@@ -1,72 +1,74 @@
-import os
-import openai
 from flask import Flask, render_template_string, request
+import openai
+import os
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-html_template = """
+HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>NinjaApp ✨</title>
+    <title>Chat con OpenAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f5f5f5;
+            background-color: #f3f4f6;
+            font-family: 'Inter', sans-serif;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             height: 100vh;
             margin: 0;
         }
-        .container {
+        .chat-box {
             background: white;
             padding: 2rem;
             border-radius: 2rem;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             max-width: 600px;
             width: 100%;
             text-align: center;
-            animation: fadeIn 1.2s ease-in-out;
+            animation: fadeIn 1.2s ease;
         }
         h1 {
-            margin-bottom: 1rem;
             font-size: 1.8rem;
+            margin-bottom: 1rem;
         }
         input[type="text"] {
             width: 70%;
-            padding: 0.7rem;
+            padding: 0.6rem;
+            border: 2px solid #e5e7eb;
             border-radius: 1rem;
-            border: 1px solid #ccc;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            transition: border 0.3s;
         }
-        button {
-            padding: 0.7rem 1.5rem;
+        input[type="text"]:focus {
+            border-color: #6366f1;
+            outline: none;
+        }
+        input[type="submit"] {
+            padding: 0.6rem 1.2rem;
             border: none;
-            background: #4f46e5;
+            background-color: #6366f1;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             border-radius: 1rem;
-            margin-left: 1rem;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: background 0.3s;
         }
-        button:hover {
-            background: #3730a3;
+        input[type="submit"]:hover {
+            background-color: #4f46e5;
         }
-        .respuesta {
-            margin-top: 2rem;
+        .response {
+            margin-top: 1rem;
             font-size: 1rem;
             color: #333;
-            animation: fadeIn 0.8s ease-in-out;
-        }
-        .thinking {
-            font-style: italic;
-            color: #999;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -75,39 +77,38 @@ html_template = """
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="chat-box">
         <h1>💬 Chat con OpenAI</h1>
         <form method="post">
-            <input type="text" name="pregunta" placeholder="Escribe tu pregunta" required>
-            <button type="submit">Enviar</button>
+            <input type="text" name="prompt" placeholder="Escribe tu pregunta" required>
+            <input type="submit" value="Enviar">
         </form>
-        {% if respuesta %}
-            <div class="respuesta">🧠 {{ respuesta }}</div>
-        {% endif %}
-        {% if error %}
-            <div class="respuesta">⚠️ Error: {{ error }}</div>
+        {% if response %}
+            <div class="response">{{ response }}</div>
         {% endif %}
     </div>
 </body>
 </html>
 """
 
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    respuesta = None
-    error = None
-    if request.method == 'POST':
-        pregunta = request.form['pregunta']
+@app.route("/", methods=["GET", "POST"])
+def index():
+    response = None
+    if request.method == "POST":
+        prompt = request.form["prompt"]
         try:
             completion = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": pregunta}]
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt},
+                ]
             )
-            respuesta = completion.choices[0].message['content']
+            response = completion.choices[0].message.content
         except Exception as e:
-            error = str(e)
-    return render_template_string(html_template, respuesta=respuesta, error=error)
+            response = f"⚠️ Error: {str(e)}"
+
+    return render_template_string(HTML_TEMPLATE, response=response)
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get("PORT", 8080)))
