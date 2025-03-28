@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NinjaApp con ChatGPT</title>
+    <title>Pregunta a la IA</title>
 </head>
 <body>
-    <h1>Preguntale algo a ChatGPT</h1>
-    <form action="/ask" method="post">
-        <input type="text" name="question" placeholder="Escribí tu pregunta" required>
+    <h1>Hacé tu pregunta</h1>
+    <form method="post">
+        <input type="text" name="question" placeholder="¿Qué querés saber?" required>
         <button type="submit">Enviar</button>
     </form>
 
-    {% if question %}
-        <h3>Tu pregunta:</h3>
-        <p>{{ question }}</p>
-        <h3>Respuesta de ChatGPT:</h3>
-        <p>{{ answer }}</p>
+    {% if response %}
+        <h2>Respuesta:</h2>
+        <p>{{ response }}</p>
     {% endif %}
 </body>
 </html>
