@@ -1,16 +1,16 @@
-from flask import Flask, render_template_string, request
+from flask import Flask, request, render_template_string
+from flask_cors import CORS
 import openai
 import os
-from flask_cors import CORS
 
-# Inicializar Flask
+# Configurar Flask y CORS
 app = Flask(__name__)
 CORS(app)
 
-# Obtener clave de API desde variable de entorno
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+# Cargar la API key desde variables de entorno
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# HTML con animación y estilos embebidos
+# HTML + CSS + JS en un solo bloque para visual simple
 html_template = """
 <!DOCTYPE html>
 <html lang="es">
@@ -20,7 +20,7 @@ html_template = """
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: #f3f4f6;
+            background-color: #f2f2f2;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -29,92 +29,90 @@ html_template = """
         }
         .card {
             background: white;
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 2rem;
+            border-radius: 2rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
             width: 90%;
-            max-width: 700px;
+            max-width: 600px;
             text-align: center;
-            animation: fadeIn 1s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            animation: fadeIn 1s ease;
         }
         h1 {
-            font-size: 2rem;
+            font-size: 1.8rem;
             margin-bottom: 1rem;
         }
         input[type="text"] {
-            padding: 12px;
             width: 70%;
+            padding: 0.6rem;
+            border-radius: 1rem;
             border: 1px solid #ccc;
-            border-radius: 20px;
-            outline: none;
-            font-size: 16px;
+            font-size: 1rem;
         }
         button {
-            background: #6c47ff;
+            padding: 0.6rem 1.2rem;
+            background-color: #6c47ff;
             color: white;
-            padding: 12px 24px;
             border: none;
-            border-radius: 20px;
-            margin-left: 10px;
+            border-radius: 1rem;
+            font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
-            transition: background 0.3s ease;
+            margin-left: 1rem;
         }
-        button:hover {
-            background: #4c2bdc;
-        }
-        .response {
-            margin-top: 20px;
-            font-size: 15px;
+        .respuesta {
+            margin-top: 1.5rem;
+            font-size: 1rem;
             color: #333;
-            white-space: pre-wrap;
         }
         .error {
             color: red;
-            margin-top: 20px;
+            margin-top: 1.2rem;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-<div class="card">
-    <h1>💬 Chat con OpenAI</h1>
-    <form method="post">
-        <input type="text" name="pregunta" placeholder="Escribe tu pregunta">
-        <button type="submit">Enviar</button>
-    </form>
-    {% if respuesta %}
-        <div class="response">{{ respuesta }}</div>
-    {% elif error %}
-        <div class="error"><strong>Error:</strong> {{ error }}</div>
-    {% endif %}
-</div>
+    <div class="card">
+        <h1>💬 Chat con OpenAI</h1>
+        <form method="POST">
+            <input type="text" name="pregunta" placeholder="Escribe tu pregunta" required>
+            <button type="submit">Enviar</button>
+        </form>
+        {% if respuesta %}
+            <div class="respuesta">{{ respuesta }}</div>
+        {% elif error %}
+            <div class="error"><strong>Error:</strong> {{ error }}</div>
+        {% endif %}
+    </div>
 </body>
 </html>
 """
 
-# Ruta principal
 @app.route("/", methods=["GET", "POST"])
-def index():
-    respuesta = ""
-    error = ""
-
+def home():
+    respuesta = None
+    error = None
     if request.method == "POST":
         pregunta = request.form.get("pregunta")
-        try:
-            completion = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[{"role": "user", "content": pregunta}]
-            )
-            respuesta = completion.choices[0].message.content
-        except Exception as e:
-            error = str(e)
-
+        if not openai.api_key:
+            error = "No se ha definido la clave API. Verifica la variable OPENAI_API_KEY."
+        else:
+            try:
+                respuesta_api = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[
+                        {"role": "system", "content": "Sos un experto en vidrios y láminas para ventanas."},
+                        {"role": "user", "content": pregunta}
+                    ]
+                )
+                respuesta = respuesta_api.choices[0].message.content
+            except Exception as e:
+                error = str(e)
     return render_template_string(html_template, respuesta=respuesta, error=error)
 
-# Iniciar servidor
+# Puerto para Railway
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
