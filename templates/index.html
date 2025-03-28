@@ -5,10 +5,11 @@
 </head>
 <body>
     <h1>Hacé tu pregunta</h1>
-    <form method="post">
-        <input type="text" name="question" placeholder="¿Qué querés saber?" required>
-        <button type="submit">Enviar</button>
-    </form>
+    <form method="POST">
+  <input type="text" name="pregunta" placeholder="Escribí tu pregunta">
+  <button type="submit">Enviar</button>
+</form>
+
 
     {% if response %}
         <h2>Respuesta:</h2>
