@@ -1,32 +1,20 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>NinjaApp</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background: linear-gradient(to bottom, #ffffff, #aaaaaa);
-            text-align: center;
-            padding: 50px;
-        }
-        img {
-            width: 150px;
-            margin-bottom: 20px;
-        }
-        h1 {
-            font-size: 2.5em;
-            color: #222;
-        }
-        p {
-            font-size: 1.2em;
-            color: #333;
-        }
-    </style>
+    <title>NinjaApp con ChatGPT</title>
 </head>
 <body>
-    <img src="/static/logo.png" alt="Logo Ninja">
-    <h1>¡Hola mundo desde NinjaApp!</h1>
-    <p>🥷 Calcula, Corta y Vende Films con IA</p>
+    <h1>Preguntale algo a ChatGPT</h1>
+    <form action="/ask" method="post">
+        <input type="text" name="question" placeholder="Escribí tu pregunta" required>
+        <button type="submit">Enviar</button>
+    </form>
+
+    {% if question %}
+        <h3>Tu pregunta:</h3>
+        <p>{{ question }}</p>
+        <h3>Respuesta de ChatGPT:</h3>
+        <p>{{ answer }}</p>
+    {% endif %}
 </body>
 </html>
