@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pregunta a la IA</title>
+    <title>Preguntale a ChatGPT</title>
 </head>
 <body>
-    <h1>Hacé tu pregunta</h1>
+    <h1>Preguntale a ChatGPT</h1>
     <form method="POST">
-  <input type="text" name="pregunta" placeholder="Escribí tu pregunta">
-  <button type="submit">Enviar</button>
-</form>
-
-
-    {% if response %}
+        <input type="text" name="pregunta" placeholder="Escribí tu pregunta" required>
+        <button type="submit">Enviar</button>
+    </form>
+    {% if respuesta %}
         <h2>Respuesta:</h2>
-        <p>{{ response }}</p>
+        <p>{{ respuesta }}</p>
     {% endif %}
 </body>
 </html>
