@@ -1,35 +1,30 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat con OpenAI</title>
+  <meta charset="UTF-8" />
+  <title>NinjaApp IA</title>
 </head>
 <body>
   <h1>💬 Chat con OpenAI</h1>
-  <input type="text" id="userInput" placeholder="Escribí tu pregunta..." />
+  <input id="message" type="text" placeholder="Escribí tu pregunta..." />
   <button onclick="sendMessage()">Enviar</button>
-
   <pre id="response"></pre>
 
   <script>
     async function sendMessage() {
-      const message = document.getElementById("userInput").value;
+      const message = document.getElementById("message").value;
       const responseBox = document.getElementById("response");
-      responseBox.textContent = "⏳ Enviando...";
-
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ message })
-      });
-
-      const data = await res.json();
-      if (data.response) {
-        responseBox.textContent = "🧠 " + data.response;
-      } else {
-        responseBox.textContent = "⚠️ Error: " + data.error;
+      responseBox.textContent = "⏳ Esperando respuesta...";
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message })
+        });
+        const data = await res.json();
+        responseBox.textContent = data.response || data.error;
+      } catch (err) {
+        responseBox.textContent = "❌ Error: " + err;
       }
     }
   </script>
