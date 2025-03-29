@@ -1,17 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Preguntale a ChatGPT</title>
+  <meta charset="UTF-8">
+  <title>Chat con OpenAI</title>
 </head>
 <body>
-    <h1>Preguntale a ChatGPT</h1>
-    <form method="POST">
-        <input type="text" name="pregunta" placeholder="Escribí tu pregunta" required>
-        <button type="submit">Enviar</button>
-    </form>
-    {% if respuesta %}
-        <h2>Respuesta:</h2>
-        <p>{{ respuesta }}</p>
-    {% endif %}
+  <h1>💬 Chat con OpenAI</h1>
+  <input type="text" id="userInput" placeholder="Escribí tu pregunta..." />
+  <button onclick="sendMessage()">Enviar</button>
+
+  <pre id="response"></pre>
+
+  <script>
+    async function sendMessage() {
+      const message = document.getElementById("userInput").value;
+      const responseBox = document.getElementById("response");
+      responseBox.textContent = "⏳ Enviando...";
+
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await res.json();
+      if (data.response) {
+        responseBox.textContent = "🧠 " + data.response;
+      } else {
+        responseBox.textContent = "⚠️ Error: " + data.error;
+      }
+    }
+  </script>
 </body>
 </html>
